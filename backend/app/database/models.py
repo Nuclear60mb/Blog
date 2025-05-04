@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Annotated
 
-from sqlalchemy import Table, Column, Integer, String, MetaData, text, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
+from sqlalchemy import Integer, String, text, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.database import Base
 

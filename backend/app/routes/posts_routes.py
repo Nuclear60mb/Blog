@@ -1,21 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
 from app.database.engine import get_db
 from app.schemas import PostUpdate, PostCreate, PostResponse
-from app.crud import post_create, posts_get, post_get, post_delete, post_content_update
+from app.crud import create_post, get_post, get_posts, delete_post, post_content_update
 
 router = APIRouter()
 
 
-@router.get('/', response_model=list[PostResponse])
-async def read_posts(db: AsyncSession = Depends(get_db)):
-    return await posts_get(db)
+@router.get('/', response_model=List[PostResponse])
+async def read_posts_route(db: AsyncSession = Depends(get_db)):
+    return await get_posts(db)
 
 
 @router.get('/{post_id}', response_model=PostResponse)
-async def read_post(post_id: int, db: AsyncSession = Depends(get_db)):
-    post = await post_get(db, post_id)
+async def read_post_route(post_id: int, db: AsyncSession = Depends(get_db)):
+    post = await get_post(db, post_id)
 
     if not post:
         raise HTTPException(status_code=404, detail='Post was not found...')
@@ -24,12 +25,12 @@ async def read_post(post_id: int, db: AsyncSession = Depends(get_db)):
 
 #create post without auth
 @router.post('/{user_id}', response_model=PostResponse)
-async def create_post(post: PostCreate, user_id: int, db:AsyncSession = Depends(get_db),):
-    return await post_create(db, post, user_id=user_id) # id = 1 for now. Plug until then add auth
+async def create_post_route(post: PostCreate, user_id: int, db:AsyncSession = Depends(get_db),):
+    return await create_post(db, post, user_id=user_id) # admins user id = 3. Plug until auth
 
 
 @router.put('/{post_id}', response_model=PostResponse)
-async def update_post(post_id: int, post_data: PostUpdate, db: AsyncSession = Depends(get_db)):
+async def update_post_route(post_id: int, post_data: PostUpdate, db: AsyncSession = Depends(get_db)):
     updated_post = await post_content_update(db, post_id, post_data)
 
     if not updated_post:
@@ -38,8 +39,8 @@ async def update_post(post_id: int, post_data: PostUpdate, db: AsyncSession = De
 
 
 @router.delete('/{post_id}')
-async def delete_existing_post(post_id: int, db: AsyncSession = Depends(get_db)):
-    deleted_post = await post_delete(db, post_id)
+async def delete_post_route(post_id: int, db: AsyncSession = Depends(get_db)):
+    deleted_post = await delete_post(db, post_id)
 
     if not deleted_post:
         raise HTTPException(status_code=404, detail='Post was not found...')

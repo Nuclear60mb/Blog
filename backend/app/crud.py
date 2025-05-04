@@ -2,10 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.database.models import Post
-from app.schemas import PostCreate, PostUpdate
+from app.schemas import PostCreate, PostUpdate, PostResponse
 
 
-async def post_create(db: AsyncSession, post: PostCreate, user_id: int):
+async def create_post(db: AsyncSession, post: PostCreate, user_id: int):
     new_post = Post(**post.model_dump(), user_id=user_id)
     db.add(new_post)
 
@@ -15,15 +15,16 @@ async def post_create(db: AsyncSession, post: PostCreate, user_id: int):
     return new_post
 
 
-async def post_get(db: AsyncSession, post_id: int):
+async def get_post(db: AsyncSession, post_id: int):
     result = await db.execute(select(Post).where(Post.id == post_id))
     post = result.scalars().first()
     return post
 
 
-async def posts_get(db: AsyncSession):
+async def get_posts(db: AsyncSession):
     result = await db.execute(select(Post))
-    return result.scalars().all()
+    posts = result.scalars().all()
+    return [PostResponse.model_validate(post) for post in posts]
 
 
 async def post_content_update(db: AsyncSession, post_id: int, post_data: PostUpdate):
@@ -42,8 +43,8 @@ async def post_content_update(db: AsyncSession, post_id: int, post_data: PostUpd
     return post
 
 
-async def post_delete(db: AsyncSession, post_id: int):
-    post = await post_get(db, post_id)
+async def delete_post(db: AsyncSession, post_id: int):
+    post = await get_post(db, post_id)
 
     if post:
         await db.delete(post)

@@ -1,4 +1,6 @@
-.env
+backend/app/.env
 .idea/
 .venv/
 venv/
+__pycache__
+__pychache__/
