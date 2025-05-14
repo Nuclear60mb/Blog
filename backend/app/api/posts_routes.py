@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
 from app.database.engine import get_db
-from app.schemas import PostUpdate, PostCreate, PostResponse
-from app.crud import create_post, get_post, get_posts, delete_post, post_content_update
+from app.schemas.post_schemas import PostUpdate, PostCreate, PostResponse
+from app.services.posts_func import create_post, get_post, get_posts, delete_post, post_content_update
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ async def read_post_route(post_id: int, db: AsyncSession = Depends(get_db)):
 #create post without auth
 @router.post('/{user_id}', response_model=PostResponse)
 async def create_post_route(post: PostCreate, user_id: int, db:AsyncSession = Depends(get_db),):
-    return await create_post(db, post, user_id=user_id) # admins user id = 3. Plug until auth
+    return await create_post(db, post, user_id=user_id) # admins user id = 3. Plug until ill add auth
 
 
 @router.put('/{post_id}', response_model=PostResponse)

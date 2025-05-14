@@ -2,7 +2,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.routes import posts_routes
+from app.api import posts_routes, auth_routes, user_routes
 from app.database.engine import create_database
 
 
@@ -14,8 +14,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
-app = FastAPI()
 
 origins = [
     "http://localhost:5173",
@@ -32,3 +30,4 @@ app.add_middleware(
 
 
 app.include_router(posts_routes.router, prefix='/posts', tags=['Posts'])
+app.include_router(auth_routes.router, prefix='/user', tags=['Auth'])

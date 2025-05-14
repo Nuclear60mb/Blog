@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.database.models import Post
-from app.schemas import PostCreate, PostUpdate, PostResponse
+from app.schemas.post_schemas import PostCreate, PostUpdate, PostResponse
 
 
 async def create_post(db: AsyncSession, post: PostCreate, user_id: int):
