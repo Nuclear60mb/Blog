@@ -1,23 +1,29 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
-from typing import Optional, List
+import uuid
+
+from fastapi_users import schemas
+from typing import List, Optional
+from pydantic import EmailStr
 
 from app.schemas.post_schemas import PostResponse
 
 
-class UserRegister(BaseModel):
-    username: str
-    user_password: str
-    user_email: EmailStr
+class UserCreate(schemas.BaseUserCreate):
+    pass
 
-
-class UserResponce(BaseModel):
-    id: int
-    user_email: EmailStr
-    username: str
-    bio: Optional[str] = None
+class UserRead(schemas.BaseUser[uuid.UUID]):
+    username: Optional[str] = None
+    user_bio: Optional[str] = None
     live: Optional[str] = None
-    posts: List[PostResponse]
+    posts: List[PostResponse] = []
     posts_count: Optional[int] = 0
 
 
-    model_config = ConfigDict(from_attributes=True)
+
+class UserUpdate(schemas.BaseUserUpdate):
+    username: Optional[str] = None
+    bio: Optional[str] = None
+    live: Optional[str] = None
+    posts: List[PostResponse] = []
+    posts_count: Optional[int] = 0
+
+

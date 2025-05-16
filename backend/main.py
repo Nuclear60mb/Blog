@@ -2,8 +2,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.api import posts_routes, auth_routes, user_routes
-from app.database.engine import create_database
+from app.api import posts_routes
+from app.database.database import create_database
+from app.services.user_manager import auth_backend, current_active_user, fastapi_users
+from app.schemas.user_schemas import UserCreate, UserRead, UserUpdate
 
 
 @asynccontextmanager
@@ -30,4 +32,27 @@ app.add_middleware(
 
 
 app.include_router(posts_routes.router, prefix='/posts', tags=['Posts'])
-app.include_router(auth_routes.router, prefix='/user', tags=['Auth'])
+
+app.include_router(fastapi_users.get_auth_router(auth_backend), prefix='/auth', tags=['Auth'])
+
+app.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix='/auth',
+    tags=['Auth']
+)
+
+app.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_verify_router(UserRead),
+    prefix="/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix="/users",
+    tags=["users"],
+)
