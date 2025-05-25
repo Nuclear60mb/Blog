@@ -1,6 +1,7 @@
-import { useEffect, useState, React } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AntDesignOutlined } from '@ant-design/icons';
-import { Card, Descriptions, Spin, Alert, Avatar, Button } from 'antd';
+import { Descriptions, Spin, Alert, Avatar, Button } from 'antd';
+
 import api from '../api/api';
 
 function ProfilePage(props) {
@@ -14,7 +15,8 @@ function ProfilePage(props) {
         const res = await api.get('/users/me');
         setUser(res.data);
       } catch (err) {
-        setError('Не удалось загрузить информацию о пользователе');
+        setError('Failed to load user data');
+        console.error('Error fetching user data:', err);
       } finally {
         setLoading(false);
       }
@@ -22,7 +24,7 @@ function ProfilePage(props) {
     fetchUser();
   }, []);
 
-  if (loading) return <Spin tip="Загрузка..." />;
+  if (loading) return <Spin tip="Loading..." />;
   if (error) return <Alert type="error" message={error} />;
 
   const items = [
@@ -74,8 +76,26 @@ function ProfilePage(props) {
         <div>
           <Descriptions title="User Info" items={items} />
         </div>
-        <div>
-          <Button href='/changeinfo'>Change information</Button>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            marginTop: 16,
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ display: 'flex', gap: 12 }}>
+            <Button href='/posts/create_post'>Add new post</Button>
+            <Button href="/posts/my_posts">My posts</Button>
+          </div>
+          <Button
+            color="purple"
+            variant="filled"
+            href='/profile/change_my_info'
+            style={{ marginLeft: 860 }}
+          >
+            Change information
+          </Button>
         </div>
       </div>
     </div>

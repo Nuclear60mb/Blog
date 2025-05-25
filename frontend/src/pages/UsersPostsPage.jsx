@@ -4,7 +4,6 @@ import { Link, } from 'react-router-dom';
 
 import api from '../api/api';
 
-// import Header from '../components/Header old';
 
 function PostsList() {
   const [posts, setPosts] = useState([]);
@@ -21,10 +20,10 @@ function PostsList() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await api.get('/posts');
+        const res = await api.get('/posts/user_posts');
         setPosts(res.data);
       } catch (err) {
-        setError('Не удалось загрузить посты');
+        setError('Failed to load posts');
       } finally {
         setLoading(false);
       }
@@ -32,7 +31,7 @@ function PostsList() {
     fetchPosts();
   }, []);
 
-  if (loading) return <Spin tip="Загрузка постов..." />;
+  if (loading) return <Spin tip="Loading..." />;
   if (error) return <Alert type="error" message={error} />;
 
 

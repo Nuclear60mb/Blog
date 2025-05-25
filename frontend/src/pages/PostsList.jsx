@@ -1,9 +1,8 @@
 import React, {useEffect, useState } from 'react';
 import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
-import { Avatar, List, Space, Card, Col, Row, Spin, Alert } from 'antd';
+import { Avatar, List, Space, Card, Spin, Alert } from 'antd';
 
 import api from '../api/api';
-import { Link } from 'react-router-dom';
 
 
 const PostsListNew = () => {
@@ -25,7 +24,8 @@ const PostsListNew = () => {
                 const res = await api.get('/posts');
                 setPosts(res.data);
             } catch (err) {
-                setError('Не удалось загрузить посты');
+                setError('Failed to load posts');
+                console.error('Error fetching posts:', err);
             } finally {
                 setLoading(false);
             }
@@ -33,7 +33,7 @@ const PostsListNew = () => {
         fetchPosts();
     }, []);
 
-    if (loading) return <Spin tip="Загрузка постов..." />;
+    if (loading) return <Spin tip="Loading..." />;
     if (error) return <Alert type="error" message={error} />;
 
 

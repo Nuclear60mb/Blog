@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 
 from pydantic import BaseModel, ConfigDict
@@ -12,8 +13,8 @@ class PostCreate(BaseModel):
 
 
 class PostUpdate(BaseModel):
-    title: str
-    content: str
+    title: Optional[str] = None
+    content: Optional[str] = None
 
 
 class PostResponse(BaseModel):

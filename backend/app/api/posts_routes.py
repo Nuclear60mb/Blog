@@ -13,8 +13,8 @@ from app.services.user_manager import current_active_user
 router = APIRouter()
 
 
-@router.get('/{post_id}', response_model=PostResponse)
-async def get_post(post_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+@router.get('/user_post/{post_id}', response_model=PostResponse)
+async def get_user_post(post_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).where(Post.id == post_id))
     post = result.scalars().first()
     return post
@@ -26,6 +26,15 @@ async def get_posts(
     # offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post))
+    posts = result.scalars().all()
+    return [PostResponse.model_validate(post) for post in posts]
+
+@router.get('/user_posts', response_model=List[PostResponse])
+async def get_user_posts(
+    user: User = Depends(current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Post).where(Post.author_id == user.id))
     posts = result.scalars().all()
     return [PostResponse.model_validate(post) for post in posts]
 
@@ -46,7 +55,7 @@ async def create_post(
     return new_post
 
 
-@router.put('/{post_id}', response_model=PostResponse)
+@router.put('/update_post/{post_id}', response_model=PostResponse)
 async def update_post(
     post_id: uuid.UUID,
     post_data: PostUpdate,
@@ -72,7 +81,7 @@ async def update_post(
     return post
 
 
-@router.delete('/{post_id}')
+@router.delete('/delete_post/{post_id}')
 async def delete_post(
     post_id: uuid.UUID,
     user: User = Depends(current_active_user),

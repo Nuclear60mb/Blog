@@ -3,7 +3,6 @@ import { AntDesignOutlined } from '@ant-design/icons';
 import { Avatar, Descriptions } from 'antd';
 
 function UserInfo(props) {
-    // const { currency } = props
 
     const items = [
         {

@@ -1,5 +1,5 @@
 import { React, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input, Flex, message } from 'antd';
 
@@ -17,10 +17,11 @@ const LoginPage = () => {
 
             const res = await api.post('/auth/login', formData);
             localStorage.setItem('access_token', res.data.access_token);
-            message.success('Успешный вход');
+            message.success('Successfully logged in');
             navigate('/profile');
         } catch (err) {
-            message.error('Ошибка авторизации');
+            message.error('An error occurred during login. Please check your credentials.');
+            console.error('Login error:', err);
         } finally {
             setLoading(false);
         }

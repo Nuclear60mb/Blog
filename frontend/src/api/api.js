@@ -16,3 +16,5 @@ export const logout = async () => {
     console.error('Ошибка при выходе из аккаунта', err);
   }
 };
+
+

@@ -1,56 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-    AutoComplete,
-    Button,
-    Cascader,
-    Checkbox,
-    Col,
-    Form,
-    Input,
-    InputNumber,
-    Row,
-    Select,
-    message,
-} from 'antd';
+import { Button, Select, message, Form, Input } from 'antd';
 
 import api from '../api/api';
 
 const { Option } = Select;
-const residences = [
-    {
-        value: 'zhejiang',
-        label: 'Zhejiang',
-        children: [
-            {
-                value: 'hangzhou',
-                label: 'Hangzhou',
-                children: [
-                    {
-                        value: 'xihu',
-                        label: 'West Lake',
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        value: 'jiangsu',
-        label: 'Jiangsu',
-        children: [
-            {
-                value: 'nanjing',
-                label: 'Nanjing',
-                children: [
-                    {
-                        value: 'zhonghuamen',
-                        label: 'Zhong Hua Men',
-                    },
-                ],
-            },
-        ],
-    },
-];
 const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
@@ -83,15 +37,16 @@ const RegistationPage = () => {
             await api.post('/auth/register', {
                 email: values.email,
                 password: values.password,
-                username: values.nickname,
+                username: values.username,
                 birthday: values.birthday,
                 gender: values.gender
 
             });
-            message.success('Регистрация прошла успешно');
+            message.success('Registration successful');
             navigate('/auth/login');
         } catch (err) {
-            message.error('Ошибка регистрации');
+            message.error('Registration failed. Please check your input and try again.');
+            console.error('Registration error:', err);
         } finally {
             setLoading(false);
         }
@@ -163,8 +118,8 @@ const RegistationPage = () => {
             </Form.Item>
 
             <Form.Item
-                name="nickname"
-                label="Nickname"
+                name="username"
+                label="Username"
                 tooltip="What do you want others to call you?"
                 rules={[{ required: true, message: 'Please input your nickname!', whitespace: true }]}
             >
@@ -184,24 +139,6 @@ const RegistationPage = () => {
                 </Select>
             </Form.Item>
 
-            {/* <Form.Item label="Captcha" extra="We must make sure that your are a human.">
-                <Row gutter={8}>
-                    <Col span={12}>
-                        <Form.Item
-                            name="captcha"
-                            noStyle
-                            rules={[{ required: true, message: 'Please input the captcha you got!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Button>Get captcha</Button>
-                    </Col>
-                </Row>
-            </Form.Item> */}
-
-
             <Form.Item {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit" loading={loading}>
                     Register
@@ -209,7 +146,7 @@ const RegistationPage = () => {
             </Form.Item>
             <Form.Item>
                 <Button>
-                    Уже есть аккаунт? <Link to="/auth/login">Войдите</Link>
+                    Do you have account? <Link to="/auth/login">Log in</Link>
                 </Button>
             </Form.Item>
         </Form>
