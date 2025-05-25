@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime
-from typing import Annotated, List
+from datetime import datetime, date
+from typing import Annotated
 from sqlalchemy import Integer, String, text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
@@ -27,7 +27,9 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     username: Mapped[str] = mapped_column(String(30), nullable=True)
     user_bio: Mapped[str] = mapped_column(String(1024), nullable=True)
     live: Mapped[str] = mapped_column(String(1024), nullable=True)
-    posts: Mapped[List['Post']] = relationship(back_populates="author", lazy="selectin")
+    gender: Mapped[str] = mapped_column(String(1024), nullable=True)
+    birthday: Mapped[date] = mapped_column(nullable=True)
+
     posts_count: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
@@ -39,7 +41,7 @@ class Post(Base):
     content: Mapped[str] = mapped_column(String(1024))
 
     author_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
-    author: Mapped['User'] = relationship(back_populates="posts")
+    author: Mapped['User'] = relationship('User', lazy='joined')
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]

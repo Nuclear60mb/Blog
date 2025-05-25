@@ -37,7 +37,7 @@ const PostPage = () => {
         </p>
         <Divider dashed />
         <p>
-            {post.created_at    }
+            {post.created_at}
         </p>
     </>)
 

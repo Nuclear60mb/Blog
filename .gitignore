@@ -1,4 +1,5 @@
-backend/app/.env
+backend/app/.env_jwt
+backend/app/.env_db
 .idea/
 .venv/
 venv/

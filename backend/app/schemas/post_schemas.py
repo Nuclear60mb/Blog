@@ -1,22 +1,27 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+import uuid
+
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+
+from app.schemas.user_schemas import UserRead
 
 
 class PostCreate(BaseModel):
     title: str
     content: str
-    # user_id: int
 
 
 class PostUpdate(BaseModel):
+    title: str
     content: str
 
 
 class PostResponse(BaseModel):
-    id: int
+    id: uuid.UUID
     title: str
     content: str
-    user_id: int
+    author: UserRead
+    author_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
 

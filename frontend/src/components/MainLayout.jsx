@@ -5,37 +5,18 @@ import { LaptopOutlined,
     UserAddOutlined,
     TeamOutlined,
     OrderedListOutlined,
+    IdcardOutlined,
+    UserDeleteOutlined,
     } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { Outlet, Link } from "react-router-dom"
+import { Breadcrumb, Button, Layout, Menu, theme } from 'antd';
+import { Outlet, Link, useNavigate, } from "react-router-dom"
+import { icons } from 'antd/es/image/PreviewGroup';
+
+import { logout } from '../api/api';
 
 
 const { Header, Content, Sider } = Layout;
-const items1 = [
-    {
-        label: 'sign up',
-        key: 'sign up',
-        icon: <UserAddOutlined />,
-        disabled: true,
-    },
-    {
-        label: 'Log in',
-        key: 'log in',
-        icon: <TeamOutlined />,
-        disabled: true,
-    },
-    {
-        label: <Link to="/posts">Posts</Link>,
-        key: 'posts',
-        icon: <OrderedListOutlined />,
-    },
-    {
-        key: 'home',
-        label: <Link to="/home">Home</Link>,
-    },
 
-
-]
 const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, index) => {
     const key = String(index + 1);
     return {
@@ -52,6 +33,52 @@ const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, i
     };
 });
 const MainLayout = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/auth/login');
+    };
+
+    const items1 = [
+        {
+            label: <Link to="/auth/register">Sign up</Link>,
+            key: 'sign up',
+            icon: <UserAddOutlined />,
+            disabled: false,
+        },
+        {
+            label: <Link to="/auth/login">Log in</Link>,
+            key: 'log in',
+            icon: <TeamOutlined />,
+            disabled: false,
+        },
+        {
+            label: <Link to="/posts">Posts</Link>,
+            key: 'posts',
+            icon: <OrderedListOutlined />,
+        },
+        {
+            key: 'home',
+            label: <Link to="/home">Home</Link>,
+            disabled: true,
+        },
+        {
+            label: <Link to='/profile'>My profile</Link>,
+            key: 'profile',
+            icon: <IdcardOutlined />
+        },
+        {
+            label: <a>logout</a>,
+            key: 'logout',
+            icon: <UserDeleteOutlined />,
+            onClick: handleLogout,    
+        }
+
+
+    ]
+
+
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();

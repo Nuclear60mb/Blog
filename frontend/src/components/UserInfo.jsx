@@ -2,7 +2,9 @@ import React from 'react';
 import { AntDesignOutlined } from '@ant-design/icons';
 import { Avatar, Descriptions } from 'antd';
 
-function UserInfo() {
+function UserInfo(props) {
+    // const { currency } = props
+
     const items = [
         {
             key: '1',
@@ -21,12 +23,22 @@ function UserInfo() {
         },
         {
             key: '4',
-            label: 'Bio',
-            children: 'empty',
+            label: 'posts',
+            children: 'lorem',
         },
         {
             key: '5',
-            label: 'Posts',
+            label: 'Gender',
+            children: '#',
+        },
+        {
+            birthday: '6',
+            label: 'Birthday',
+            children: '#',
+        },
+        {
+            key: '7',
+            label: 'Bio',
             children: '#',
         },
     ];

@@ -13,11 +13,12 @@ from fastapi_users.authentication import (
     AuthenticationBackend,
     CookieTransport,
     JWTStrategy,
+    Authenticator,
 )
 
 from app.database.database import User, get_user_db
 from app.core.config import jwt_settings
-from app.schemas.user_schemas import UserCreate
+from app.schemas.user_schemas import UserCreate, UserRead, UserUpdate
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, int]):
@@ -85,5 +86,9 @@ fastapi_users = FastAPIUsers[User, uuid.UUID](
     [auth_backend],
 )
 
+authenticator = Authenticator(
+    [auth_backend], 
+    get_user_manager 
+)
 
 current_active_user = fastapi_users.current_user(active=True)

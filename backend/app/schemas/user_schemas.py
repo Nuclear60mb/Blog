@@ -1,29 +1,33 @@
 import uuid
 
 from fastapi_users import schemas
-from typing import List, Optional
+from typing import Optional
+from datetime import date
 from pydantic import EmailStr
 
-from app.schemas.post_schemas import PostResponse
 
 
 class UserCreate(schemas.BaseUserCreate):
-    pass
+    username: str
+    gender: str
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
     username: Optional[str] = None
     user_bio: Optional[str] = None
     live: Optional[str] = None
-    posts: List[PostResponse] = []
     posts_count: Optional[int] = 0
+    gender: Optional[str] = None
+    birthday: Optional[date] = None
 
 
 
 class UserUpdate(schemas.BaseUserUpdate):
+    email: Optional[EmailStr] = None
     username: Optional[str] = None
-    bio: Optional[str] = None
+    user_bio: Optional[str] = None
     live: Optional[str] = None
-    posts: List[PostResponse] = []
-    posts_count: Optional[int] = 0
+    birthday: Optional[date] = None
+    gender: Optional[str] = None
+
 
 
