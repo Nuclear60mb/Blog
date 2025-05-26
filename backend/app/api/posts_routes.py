@@ -1,103 +1,64 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends
 from typing import List
-from sqlalchemy.future import select
 
-from app.database.database import get_db
 from app.schemas.post_schemas import PostUpdate, PostCreate, PostResponse
-from app.database.models import Post, User
+from app.database.models import User
 from app.services.user_manager import current_active_user
+from app.dependencies import get_post_service
+from app.services.post_service import PostService
 
 router = APIRouter()
 
 
 @router.get('/user_post/{post_id}', response_model=PostResponse)
-async def get_user_post(post_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Post).where(Post.id == post_id))
-    post = result.scalars().first()
-    return post
+async def get_user_post(post_id: uuid.UUID, service: PostService = Depends(get_post_service)):
+    return await service.get_post_by_id(post_id)
 
 
 @router.get('/', response_model=List[PostResponse])
-async def get_posts(
-    # limit: int = Query(10, ge=10),
-    # offset: int = Query(0, ge=0),
-    db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Post))
-    posts = result.scalars().all()
-    return [PostResponse.model_validate(post) for post in posts]
+async def get_posts(service: PostService = Depends(get_post_service)):
+    return await service.get_all_posts()
 
 @router.get('/user_posts', response_model=List[PostResponse])
 async def get_user_posts(
     user: User = Depends(current_active_user),
-    db: AsyncSession = Depends(get_db),
+    service: PostService = Depends(get_post_service),
 ):
-    result = await db.execute(select(Post).where(Post.author_id == user.id))
-    posts = result.scalars().all()
-    return [PostResponse.model_validate(post) for post in posts]
+    return await service.get_user_posts(user)
 
 
 @router.post('/create_post', response_model=PostResponse)
 async def create_post(
-    post: PostCreate,
+    post_data: PostCreate,
     user: User = Depends(current_active_user),
-    db: AsyncSession = Depends(get_db),
-
+    service: PostService = Depends(get_post_service)
 ):
-    new_post = Post(**post.model_dump(), author_id=user.id, author=user)
-    db.add(new_post)
 
-    await db.commit()
-    await db.refresh(new_post)
-
-    return new_post
+    return await service.create_post(
+        post_data=post_data,
+        user=user
+    )
 
 
 @router.put('/update_post/{post_id}', response_model=PostResponse)
 async def update_post(
     post_id: uuid.UUID,
-    post_data: PostUpdate,
+    post_update: PostUpdate,
     user: User = Depends(current_active_user),
-    db: AsyncSession = Depends(get_db)
+    service: PostService = Depends(get_post_service)
 ):
-
-    result = await db.execute(select(Post).where(Post.id == post_id))
-    post = result.scalars().first()
-
-    if not post:
-        raise HTTPException(status_code=404, detail='Post was not found...')
-    elif post.author_id != user.id:
-        raise HTTPException(
-            status_code=403, detail='You are not allowed to update this post...')
-    else:
-        for key, value in post_data.model_dump(exclude_unset=True).items():
-            setattr(post, key, value)
-
-    await db.commit()
-    await db.refresh(post)
-
-    return post
+    return await service.update_post(
+        post_id=post_id,
+        post_update=post_update
+    )
 
 
 @router.delete('/delete_post/{post_id}')
 async def delete_post(
     post_id: uuid.UUID,
-    user: User = Depends(current_active_user),
-    db: AsyncSession = Depends(get_db)
+    service: PostService = Depends(get_post_service)
 ):
-
-    result = await db.execute(select(Post).where(Post.id == post_id))
-    post = result.scalars().first()
-
-    if not post:
-        raise HTTPException(status_code=404, detail='Post was not found...')
-    elif post.author_id != user.id:
-        raise HTTPException(
-            status_code=403, detail='You are not allowed to delete this post...')
-    else:
-        await db.delete(post)
-        await db.commit()
-
+    await service.delete_post(post_id=post_id)
     return {'message': 'Post has been deleted'}

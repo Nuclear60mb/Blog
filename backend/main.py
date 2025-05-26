@@ -1,15 +1,16 @@
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi_users.router import get_users_router
+from fastapi.responses import JSONResponse
 
-from app.database.models import User
 from app.services.user_manager import get_user_manager
 from app.api import posts_routes
 from app.database.database import create_database
-from app.services.user_manager import auth_backend, current_active_user, fastapi_users
+from app.services.user_manager import auth_backend, fastapi_users
 from app.schemas.user_schemas import UserCreate, UserRead, UserUpdate
 from app.services.user_manager import authenticator
+from app.exceptions import AppException
 
 users_router = get_users_router(
     get_user_manager,
@@ -26,6 +27,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(AppException)
+async def app_exception_handler(request: Request, exc: AppException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
 
 
 origins = [
