@@ -1,8 +1,9 @@
 import uuid
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
+from sqlalchemy import func
 from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.post_schemas import PostResponse, PostUpdate, PostCreate
 from app.database.models import Post, User
@@ -19,10 +20,12 @@ class PostRepository:
         post = result.scalars().first()
         return post
 
-    async def get_all_posts(self) -> List[Post]:
-        result = await self.db.execute(select(Post))
-        posts = result.scalars().all()
-        return [PostResponse.model_validate(post) for post in posts]
+    async def get_all_posts(self, offset: int, limit: int) -> List[Post]:
+        stmt = select(Post).offset(offset).limit(limit)
+        result = await self.db.execute(stmt)
+        items = result.scalars().all()
+        total = await self.db.scalar(select(func.count()).select_from(Post))
+        return items, total
 
     async def get_user_posts(self, user: User) -> List[Post]:
         result = await self.db.execute(select(Post).where(Post.author_id == user.id))
@@ -58,3 +61,10 @@ class PostRepository:
         await self.db.commit()
 
         return {'message': 'Post has been deleted'}
+    
+    # async def get_pagination(self, offset: int, limit: int):
+    #     stmt = select(Post).offset(offset).limit(limit)
+    #     result = await self.db.execute(stmt)
+    #     items = result.scalars().all()
+    #     total = await self.db.scalar(select(func.count()).select_from(Post))
+    #     return items, total

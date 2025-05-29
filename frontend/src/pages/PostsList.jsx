@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
 import { Avatar, List, Space, Card, Spin, Alert } from 'antd';
 
@@ -6,10 +6,14 @@ import api from '../api/api';
 
 
 const PostsListNew = () => {
-
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        current: 1,
+        pageSize: 10
+    });
 
     const { Meta } = Card;
 
@@ -18,20 +22,37 @@ const PostsListNew = () => {
         return text.slice(0, maxLength) + '...';
     };
 
+    // Вынесите fetchPosts наружу
+    const fetchPosts = async (page = 1) => {
+        setLoading(true);
+        try {
+            const offset = (page - 1) * pagination.pageSize;
+            const res = await api.get('/posts', {
+                params: { offset, limit: pagination.pageSize }
+            });
+
+            setPosts(res.data.items || []);
+            setPagination(prev => ({
+                ...prev,
+                total: res.data.total || 0,
+                current: page,
+            }));
+        } catch (err) {
+            setError('Failed to load posts');
+            console.error('Error fetching posts:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const res = await api.get('/posts');
-                setPosts(res.data);
-            } catch (err) {
-                setError('Failed to load posts');
-                console.error('Error fetching posts:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPosts();
+        fetchPosts(pagination.current);
+        // eslint-disable-next-line
     }, []);
+
+    const handlePageChange = (page) => {
+        fetchPosts(page);
+    };
 
     if (loading) return <Spin tip="Loading..." />;
     if (error) return <Alert type="error" message={error} />;
@@ -57,10 +78,10 @@ const PostsListNew = () => {
             itemLayout="vertical"
             size="large"
             pagination={{
-                onChange: page => {
-                    console.log(page);
-                },
-                pageSize: 3,
+                current: pagination.current,
+                total: pagination.total,
+                pageSize: pagination.pageSize,
+                onChange: handlePageChange,
             }}
             dataSource={data}
             footer={

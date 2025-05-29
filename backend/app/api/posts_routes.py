@@ -1,9 +1,9 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from typing import List
 
-from app.schemas.post_schemas import PostUpdate, PostCreate, PostResponse
+from app.schemas.post_schemas import PostUpdate, PostCreate, PostResponse, PaginatedPostsResponse
 from app.database.models import User
 from app.services.user_manager import current_active_user
 from app.dependencies import get_post_service
@@ -17,9 +17,18 @@ async def get_user_post(post_id: uuid.UUID, service: PostService = Depends(get_p
     return await service.get_post_by_id(post_id)
 
 
-@router.get('/', response_model=List[PostResponse])
-async def get_posts(service: PostService = Depends(get_post_service)):
-    return await service.get_all_posts()
+@router.get('/', response_model=PaginatedPostsResponse)
+async def get_posts(
+    service: PostService = Depends(get_post_service),
+    limit: int = Query(10, ge=1, le=100),
+    offset: int = Query(0, ge=0)):
+    items, total = await service.get_all_posts(offset=offset, limit=limit)
+    return {
+        'items': [PostResponse.from_orm(item) for item in items],
+        'limit': limit,
+        'offset': offset,
+        'total': total
+    }
 
 @router.get('/user_posts', response_model=List[PostResponse])
 async def get_user_posts(
